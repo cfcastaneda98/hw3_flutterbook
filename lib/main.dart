@@ -34,7 +34,10 @@ class FlutterBook extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue,
+        colorScheme: ColorScheme.dark(),
+        appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey),
+        secondaryHeaderColor: Colors.white,
       ),
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(

@@ -54,11 +54,17 @@ class AppointmentsList extends StatelessWidget
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 10),
                           child: CalendarCarousel<Event>(
-                            thisMonthDayBorderColor: Colors.grey,
+                            headerTextStyle: TextStyle(fontSize: 22.0,color: Colors.white),
+                            thisMonthDayBorderColor: Colors.white,
+                            todayButtonColor: Colors.blueAccent,
+                            todayBorderColor: Colors.white,
                             daysHaveCircularBorder: false,
                             markedDatesMap: markedDateMap,
-                            todayTextStyle: const TextStyle(color: Colors.white
-                            ),
+                            dayButtonColor: Colors.blueGrey,
+                            daysTextStyle: const TextStyle(color: Colors.white),
+                            weekendTextStyle: const TextStyle(color: Colors.lightBlueAccent),
+                            todayTextStyle: const TextStyle(color: Colors.white),
+                            weekdayTextStyle: const TextStyle(color: Colors.white),
                             onDayPressed: (DateTime inDate, List<Event> inEvents) {
                               _showAppointments(inDate, inContext);
                             },
@@ -133,7 +139,7 @@ class AppointmentsList extends StatelessWidget
                                     ),
                                     child: Container(
                                       margin: const EdgeInsets.only(bottom: 8),
-                                      color: Colors.grey.shade300,
+                                      color: Colors.blueAccent,
                                       child: ListTile(
                                         title: Text("${appointment.title} $apptTime"),
                                         subtitle: appointment.description == '' ?
