@@ -62,7 +62,11 @@ class FlutterBook extends StatelessWidget {
                 Tab(
                   icon: Icon(Icons.assignment_turned_in),
                   text: "Tasks",
-                )
+                ),
+                Tab(
+                  icon: Icon(Icons.mic_outlined),
+                  text: "Recorder",
+                ),
               ],
             ),
           ),
