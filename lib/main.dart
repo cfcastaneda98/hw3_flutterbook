@@ -5,6 +5,7 @@ import "appointments/Appointments.dart";
 import 'contacts/Contacts.dart';
 import 'notes/Notes.dart';
 import 'tasks/Tasks.dart';
+import 'Recorder/Recorder.dart';
 import 'utils.dart' as utils;
 
 Future<void> main() async {
@@ -41,7 +42,7 @@ class FlutterBook extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: DefaultTabController(
-          length: 4,
+          length: 5,
         child: Scaffold(
           appBar: AppBar(
             title: const Text("FlutterBook"),
@@ -75,7 +76,8 @@ class FlutterBook extends StatelessWidget {
               Appointments(),
               Contacts(),
               Notes(),
-              Tasks()
+              Tasks(),
+              Recorder(),
             ],
           ),
         ),
