@@ -1,3 +1,5 @@
+import 'package:flutter_sound/flutter_sound.dart';
+
 import '../BaseModel.dart';
 
 class Recorder

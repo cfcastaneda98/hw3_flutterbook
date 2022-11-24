@@ -45,7 +45,7 @@ class FlutterBook extends StatelessWidget {
           length: 5,
         child: Scaffold(
           appBar: AppBar(
-            title: const Text("FlutterBook"),
+            title: const Text("HW3 - FlutterBook"),
             bottom: const TabBar(
               tabs: [
                 Tab(

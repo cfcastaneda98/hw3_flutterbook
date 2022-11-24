@@ -33,13 +33,15 @@ dependencies:
   sqflite: 2.0.3
   path_provider: ^2.0.2
   flutter_slidable: 2.0.0
-  intl: 0.17.0
+  intl: ^0.17.0
   image_picker: 0.8.5+3
   flutter_calendar_carousel: 2.4.0
   #Newly added dependency for our feature:
   audioplayers: ^0.19.1
-  flutter_sound_record: ^3.1.0
-
+  flutter_sound: ^8.1.9
+  permission_handler: ^9.2.0
+  assets_audio_player: ^3.0.3+3
+  path: ^1.8.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

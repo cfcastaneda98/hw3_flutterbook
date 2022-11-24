@@ -1,10 +1,26 @@
+import 'dart:convert';
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'RecorderDBWorker.dart';
 import 'RecorderModel.dart' show RecorderModel, recorderModel;
-
+import 'dart:async';
+import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:intl/intl.dart' show DateFormat;
 class RecorderEntry extends StatelessWidget
 {
+  FlutterSoundRecorder _recordingSession;
+  final recorder = FlutterSoundRecorder();
+  final recordingPlayer = AssetsAudioPlayer();
+
+  String pathToAudio;
+  bool _playAudio = false;
+  String _timerText = '00:00:00';
+
   final TextEditingController _titleEditingController = TextEditingController();
   final TextEditingController _contentEditingController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -68,21 +84,32 @@ class RecorderEntry extends StatelessWidget
                           },
                         ),
                       ),
-                      ListTile(
-                        leading: Icon(Icons.content_paste),
-                        title: TextFormField(
-                          keyboardType: TextInputType.multiline,
-                          maxLines: 8,
-                          decoration: const InputDecoration(hintText: "Content"),
-                          controller: _contentEditingController,
-                          validator: (String inValue) {
-                            if (inValue == null || inValue.isEmpty) {
-                              return "Please enter content";
-                            }
-
-                            return null;
-                          },
+                      Container(
+                        child: Center(
+                          child: Text(
+                            _timerText,
+                            style: TextStyle(
+                              fontSize: 70,
+                              color: Colors.lightBlueAccent,
+                            ),
+                          ),
                         ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ElevatedButton.icon(
+                            label: Text('Start'),
+                            icon: Icon(Icons.mic),
+                            onPressed: () async{
+                              if(recorder.isRecording){
+                                await stop();
+                              }else{
+                                await record();
+                              }
+                            },
+                          ),
+                        ]
                       ),
                       ListTile(
                         leading: Icon(Icons.color_lens),
@@ -217,5 +244,51 @@ class RecorderEntry extends StatelessWidget
             duration: Duration(seconds: 2)
         )
     );
+  }
+  ElevatedButton createElevatedButton(
+      {IconData icon, Color iconColor, Function onPressFunc}) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.all(6.0),
+        side: BorderSide(
+          color: Colors.red,
+          width: 4.0,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        primary: Colors.white,
+        elevation: 9.0,
+      ),
+      onPressed: onPressFunc,
+      icon: Icon(
+        icon,
+        color: iconColor,
+        size: 38.0,
+      ),
+      label: Text(''),
+    );
+  }
+  Future record() async{
+    await recorder.startRecorder(toFile: 'audio');
+  }
+  Future stop() async{
+    final path = await recorder.stopRecorder();
+    final audioFile = File(path);
+    print('Recorded audio: $audioFile');
+  }
+  Future<String> stopRecording() async {
+    _recordingSession.closeAudioSession();
+    return await _recordingSession.stopRecorder();
+  }
+  Future<void> playFunc() async{
+    recordingPlayer.open(
+      Audio.file(pathToAudio),
+      autoStart: true,
+      showNotification: true,
+    );
+  }
+  Future<void> stopPlayFunc() async {
+    recordingPlayer.stop();
   }
 }
