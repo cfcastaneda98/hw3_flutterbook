@@ -96,7 +96,7 @@ class RecorderEntry extends StatelessWidget
                         ),
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           ElevatedButton.icon(
                             label: Text('Start'),
@@ -109,7 +109,29 @@ class RecorderEntry extends StatelessWidget
                               }
                             },
                           ),
-                        ]
+                          ElevatedButton.icon(
+                            label: Text('Stop'),
+                            icon: Icon(Icons.stop),
+                            onPressed: () async{
+                              if(recorder.isRecording){
+                                await stop();
+                              }else{
+                                await record();
+                              }
+                            },
+                          ),
+                          ElevatedButton.icon(
+                            label: Text('Play'),
+                            icon: Icon(Icons.play_arrow),
+                            onPressed: () async{
+                              if(recorder.isRecording){
+                                await stop();
+                              }else{
+                                await record();
+                              }
+                            },
+                          ),
+                        ],
                       ),
                       ListTile(
                         leading: Icon(Icons.color_lens),
