@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:hw3_flutterbook/Recorder/Recorder.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'RecorderDBWorker.dart';
 import 'RecorderModel.dart' show RecorderModel, recorderModel;
@@ -11,8 +12,13 @@ import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:intl/intl.dart' show DateFormat;
-class RecorderEntry extends StatelessWidget
+class RecorderEntry extends StatefulWidget
 {
+  @override
+  _RecorderEntry createState() => _RecorderEntry();
+}
+class _RecorderEntry extends State<RecorderEntry>
+  {
   FlutterSoundRecorder _recordingSession;
   final recorder = FlutterSoundRecorder();
   final recordingPlayer = AssetsAudioPlayer();
