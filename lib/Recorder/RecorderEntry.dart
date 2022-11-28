@@ -1,14 +1,17 @@
 import 'dart:convert';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:hw3_flutterbook/Recorder/Recorder.dart';
+import 'package:intl/date_symbol_data_file.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'RecorderDBWorker.dart';
 import 'RecorderModel.dart' show RecorderModel, recorderModel;
 import 'dart:async';
 import 'dart:io';
 import 'package:path/path.dart' as path;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -19,13 +22,29 @@ class RecorderEntry extends StatefulWidget
 }
 class _RecorderEntry extends State<RecorderEntry>
   {
-  FlutterSoundRecorder _recordingSession;
-  final recorder = FlutterSoundRecorder();
-  final recordingPlayer = AssetsAudioPlayer();
-
-  String pathToAudio;
-  bool _playAudio = false;
-  String _timerText = '00:00:00';
+    FlutterSoundRecorder _recordingSession;
+    final recordingPlayer = AssetsAudioPlayer();
+    String pathToAudio;
+    bool _playAudio = false;
+    String _timerText = '00:00:00';
+    @override
+    void initState() {
+      super.initState();
+      initializer();
+    }
+    void initializer() async {
+      pathToAudio = '/sdcard/Download/temp.wav';
+      _recordingSession = FlutterSoundRecorder();
+      await _recordingSession.openAudioSession(
+          focus: AudioFocus.requestFocusAndStopOthers,
+          category: SessionCategory.playAndRecord,
+          mode: SessionMode.modeDefault,
+          device: AudioDevice.speaker);
+      await _recordingSession.setSubscriptionDuration(Duration(milliseconds: 10));
+      await Permission.microphone.request();
+      await Permission.storage.request();
+      await Permission.manageExternalStorage.request();
+    }
 
   final TextEditingController _titleEditingController = TextEditingController();
   final TextEditingController _contentEditingController = TextEditingController();
@@ -94,50 +113,59 @@ class _RecorderEntry extends State<RecorderEntry>
                         child: Center(
                           child: Text(
                             _timerText,
-                            style: TextStyle(
-                              fontSize: 70,
-                              color: Colors.lightBlueAccent,
-                            ),
+                            style: TextStyle(fontSize: 70, color: Colors.lightBlueAccent),
                           ),
                         ),
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          ElevatedButton.icon(
-                            label: Text('Start'),
-                            icon: Icon(Icons.mic),
-                            onPressed: () async{
-                              if(recorder.isRecording){
-                                await stop();
-                              }else{
-                                await record();
-                              }
-                            },
+                          createElevatedButton(
+                            icon: Icons.mic,
+                            iconColor: Colors.red,
+                            onPressFunc: startRecording,
                           ),
-                          ElevatedButton.icon(
-                            label: Text('Stop'),
-                            icon: Icon(Icons.stop),
-                            onPressed: () async{
-                              if(recorder.isRecording){
-                                await stop();
-                              }else{
-                                await record();
-                              }
-                            },
+                          SizedBox(
+                            width: 30,
                           ),
-                          ElevatedButton.icon(
-                            label: Text('Play'),
-                            icon: Icon(Icons.play_arrow),
-                            onPressed: () async{
-                              if(recorder.isRecording){
-                                await stop();
-                              }else{
-                                await record();
-                              }
-                            },
+                          createElevatedButton(
+                            icon: Icons.stop,
+                            iconColor: Colors.red,
+                            onPressFunc: stopRecording,
                           ),
                         ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      ElevatedButton.icon(
+                        style:
+                        ElevatedButton.styleFrom(elevation: 9.0, primary: Colors.lightBlueAccent),
+                        onPressed: () {
+                          setState(() {
+                            _playAudio = !_playAudio;
+                          });
+                          if (_playAudio) playFunc();
+                          if (!_playAudio) stopPlayFunc();
+                        },
+                        icon: _playAudio
+                            ? Icon(
+                          Icons.stop,
+                        )
+                            : Icon(Icons.play_arrow),
+                        label: _playAudio
+                            ? Text(
+                          "Stop",
+                          style: TextStyle(
+                            fontSize: 28,
+                          ),
+                        )
+                            : Text(
+                          "Play",
+                          style: TextStyle(
+                            fontSize: 28,
+                          ),
+                        ),
                       ),
                       ListTile(
                         leading: Icon(Icons.color_lens),
@@ -297,14 +325,27 @@ class _RecorderEntry extends State<RecorderEntry>
       label: Text(''),
     );
   }
-  Future record() async{
-    await recorder.startRecorder(toFile: 'audio');
-  }
-  Future stop() async{
-    final path = await recorder.stopRecorder();
-    final audioFile = File(path);
-    print('Recorded audio: $audioFile');
-  }
+    Future<void> startRecording() async {
+      Directory directory = Directory(path.dirname(pathToAudio));
+      if (!directory.existsSync()) {
+        directory.createSync();
+      }
+      _recordingSession.openAudioSession();
+      await _recordingSession.startRecorder(
+        toFile: pathToAudio,
+        codec: Codec.pcm16WAV,
+      );
+      StreamSubscription _recorderSubscription =
+      _recordingSession.onProgress.listen((e) {
+        var date = DateTime.fromMillisecondsSinceEpoch(e.duration.inMilliseconds,
+            isUtc: true);
+        var timeText = DateFormat('mm:ss:SS', 'en_GB').format(date);
+        setState(() {
+          _timerText = timeText.substring(0, 8);
+        });
+      });
+      _recorderSubscription.cancel();
+    }
   Future<String> stopRecording() async {
     _recordingSession.closeAudioSession();
     return await _recordingSession.stopRecorder();
